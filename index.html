@@ -21,16 +21,34 @@
             overflow-y: auto;
             background-color: #ffffff;
         }
-        #message {
-            width: calc(100% - 90px);
+        .message {
+            margin-bottom: 10px;
             padding: 10px;
-            margin: 10px;
+            border-radius: 5px;
+            background-color: #e9e9e9;
+        }
+        .message.user1 {
+            background-color: #d0f0c0;
+        }
+        .message.user2 {
+            background-color: #f0d0d0;
+            text-align: right;
+        }
+        #message-form {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+        #message {
+            flex: 1;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
         button {
             padding: 10px;
-            margin: 10px;
+            margin-left: 10px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -44,30 +62,33 @@
 </head>
 <body>
     <div id="chat"></div>
-    <input type="text" id="message" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
+    <div id="message-form">
+        <input type="text" id="message" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
     <script>
         function sendMessage() {
-            var message = document.getElementById('message').value;
+            var messageInput = document.getElementById('message');
+            var message = messageInput.value;
             if (message.trim()) {
                 var chat = document.getElementById('chat');
-                chat.innerHTML += '<div>' + message + '</div>';
-                document.getElementById('message').value = '';
+                var userClass = chat.children.length % 2 === 0 ? 'user1' : 'user2';
+                chat.innerHTML += '<div class="message ' + userClass + '">' + message + '</div>';
+                messageInput.value = '';
                 chat.scrollTop = chat.scrollHeight;
-                
-                // Save message to local storage
+
+                // Save messages to local storage
                 var messages = JSON.parse(localStorage.getItem('messages')) || [];
-                messages.push(message);
+                messages.push({text: message, userClass: userClass});
                 localStorage.setItem('messages', JSON.stringify(messages));
             }
         }
 
-        // Load messages from local storage on page load
         window.onload = function() {
             var messages = JSON.parse(localStorage.getItem('messages')) || [];
             var chat = document.getElementById('chat');
-            messages.forEach(function(message) {
-                chat.innerHTML += '<div>' + message + '</div>';
+            messages.forEach(function(msg) {
+                chat.innerHTML += '<div class="message ' + msg.userClass + '">' + msg.text + '</div>';
             });
             chat.scrollTop = chat.scrollHeight;
         }
